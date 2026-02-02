@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ラットレース脱出カウンター</title>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#111827">
+
+  <style>
+    :root{
+      --dark:#0b0f14;
+      --yellow:#f7c948;
+      --white:#ffffff;
+      --line:rgba(255,255,255,.12);
+      --muted:rgba(255,255,255,.70);
+    }
+
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+      background:var(--dark);
+      color:#e5e7eb;
+    }
+
+    /* ===== Hero ===== */
+    .hero{max-width:560px;margin:0 auto;padding:22px 14px 10px;}
+    .heroTop{text-align:center;margin-top:6px;margin-bottom:12px;}
+    .heroLogo{font-weight:900;font-size:44px;letter-spacing:2px;line-height:1;color:var(--white);text-shadow:0 10px 30px rgba(0,0,0,.45);}
+    .heroTitle{margin-top:8px;font-weight:900;font-size:20px;color:rgba(255,255,255,.95);}
+
+    .heroResult{
+      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:18px;
+      padding:18px 14px 14px;
+      box-shadow:0 16px 46px rgba(0,0,0,.55);
+      text-align:center;
+      margin:12px 0 14px;
+    }
+    .heroResultLine1{font-size:22px;font-weight:900;color:rgba(255,255,255,.92);letter-spacing:.3px;}
+    .heroBig{display:inline-block;font-size:60px;font-weight:900;margin:0 8px;color:var(--yellow);text-shadow:0 10px 30px rgba(247,201,72,.16);}
+    .heroUnit{font-size:24px;font-weight:900;color:rgba(255,255,255,.92);}
+    .heroResultLine2{margin-top:2px;font-size:30px;font-weight:900;color:rgba(255,255,255,.98);}
+    .heroSub{margin-top:8px;font-size:12px;color:rgba(255,255,255,.70);}
+
+    .heroInputs{display:flex;flex-direction:column;gap:12px;margin-bottom:10px;}
+    .fieldBtn{
+      position:relative;background:var(--yellow);color:#111;border-radius:14px;
+      padding:10px 12px;display:flex;align-items:center;gap:10px;
+      box-shadow:0 14px 34px rgba(0,0,0,.45);
+    }
+    .fieldBtn.white{background:#fff;}
+    .fieldLabel{font-size:12px;font-weight:900;opacity:.85;min-width:120px;white-space:nowrap;}
+    .fieldBtn input{
+      flex:1;border:none;outline:none;background:transparent;
+      font-size:22px;font-weight:900;color:#111;padding:6px 0;
+    }
+    .suffix{font-weight:900;opacity:.75;white-space:nowrap;}
+    .cta{
+      background:var(--yellow);color:#111;border:none;border-radius:14px;
+      padding:14px 14px;font-size:18px;font-weight:900;
+      box-shadow:0 18px 46px rgba(0,0,0,.55);cursor:pointer;
+    }
+    .mini{display:flex;gap:10px;flex-wrap:wrap;}
+    .miniBtn{
+      flex:1;min-width:140px;background:rgba(255,255,255,.06);color:#fff;
+      border:1px solid rgba(255,255,255,.14);border-radius:12px;
+      padding:10px 10px;font-weight:800;cursor:pointer;
+    }
+    .hint{font-size:12px;color:rgba(255,255,255,.65);text-align:center;margin-top:2px;line-height:1.6;}
+
+    /* ===== Detail area ===== */
+    .wrap{max-width:760px;margin:0 auto;padding:10px 12px 120px;}
+    .title{font-size:18px;font-weight:900;margin:10px 4px 6px;color:#fff;opacity:.95;}
+    .sub{color:rgba(255,255,255,.70);margin:0 4px 14px;line-height:1.5;}
+
+    .card{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      margin:12px 0;
+      color:#e5e7eb;
+    }
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    @media(max-width:560px){.grid{grid-template-columns:1fr;}}
+
+    label{font-size:12px;color:rgba(255,255,255,.70);display:block;margin:2px 0 6px;}
+    input{
+      width:100%;padding:12px;font-size:16px;border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;background:rgba(0,0,0,.15);color:#fff;
+    }
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+    button{padding:12px;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;}
+
+    .btn{background:var(--yellow);color:#111;border:none;flex:1;min-width:150px;}
+    .btn2{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;flex:1;min-width:150px;}
+
+    .kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;}
+    @media(max-width:560px){.kpi{grid-template-columns:1fr;}}
+
+    .box{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;background:rgba(255,255,255,.06);}
+    .h{font-size:12px;color:rgba(255,255,255,.70);}
+    .v{font-size:22px;font-weight:900;margin:4px 0;color:#fff;}
+    .tag{font-size:12px;color:rgba(255,255,255,.68);line-height:1.45;}
+    .msg{margin-top:10px;line-height:1.65;color:#fff;}
+
+    .note{
+      margin-top:12px;padding:12px;border-radius:12px;border:1px dashed rgba(255,255,255,.22);
+      background:rgba(255,255,255,.05);font-size:13px;line-height:1.7;
+    }
+    a{color:var(--yellow);font-weight:900;text-decoration:none;}
+    .small{font-size:13px;color:rgba(255,255,255,.70);line-height:1.6;}
+    .debug{margin-top:10px;font-size:12px;color:#fb7185;white-space:pre-wrap;}
+    .preview{margin-top:10px;display:none;}
+    .preview img{width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.14);}
+    .minirow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+    .pill{display:inline-block;font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.70);background:rgba(255,255,255,.06);}
+    .range{width:100%;}
+
+    .footer{
+      position:fixed;bottom:0;left:0;right:0;
+      background:rgba(11,15,20,.92);
+      border-top:1px solid rgba(255,255,255,.10);
+      padding:10px;
+      backdrop-filter: blur(10px);
+    }
+    .footer .inner{max-width:760px;margin:0 auto;display:flex;gap:10px;}
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="heroTop">
+    <div class="heroLogo">↑↑</div>
+    <div class="heroTitle">ラットレース脱出カウンター</div>
+  </div>
+
+  <div class="heroResult">
+    <div class="heroResultLine1">あと <span id="heroYears" class="heroBig">—</span><span class="heroUnit">年</span>で</div>
+    <div class="heroResultLine2">脱出可能</div>
+    <div class="heroSub" id="heroDate">（目安：—）</div>
+  </div>
+
+  <div class="heroInputs">
+    <div class="fieldBtn">
+      <div class="fieldLabel">現在の資産</div>
+      <input id="current" type="number" inputmode="numeric" value="2000000">
+      <div class="suffix">円</div>
+    </div>
+
+    <div class="fieldBtn white">
+      <div class="fieldLabel">目標資産</div>
+      <input id="target" type="number" inputmode="numeric" value="30000000">
+      <div class="suffix">円</div>
+    </div>
+
+    <div class="fieldBtn white">
+      <div class="fieldLabel">月の投資可能額</div>
+      <input id="monthly" type="number" inputmode="numeric" value="50000">
+      <div class="suffix">円</div>
+    </div>
+
+    <button class="cta" onclick="calc()">結果を見る（実装） →</button>
+
+    <div class="mini">
+      <button class="miniBtn" onclick="toggleTax()">税引前/後</button>
+      <button class="miniBtn" onclick="generateCard()">結果カード</button>
+      <button class="miniBtn" onclick="shareCard()">共有/保存</button>
+    </div>
+
+    <div class="hint">※下に詳細な計算結果が出ます</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="title">詳細</div>
+  <p class="sub">達成日、4%ルール、生活費ギャップ、副業で何年短縮できるかまで表示。</p>
+
+  <div class="card">
+
+    <div class="grid">
+      <div>
+        <label>想定年利（%）</label>
+        <input id="rate" type="number" inputmode="decimal" step="0.1" value="5">
+      </div>
+      <div>
+        <label>現在の年齢</label>
+        <input id="age" type="number" inputmode="numeric" value="32">
+      </div>
+      <div>
+        <label>月の生活費（円）</label>
+        <input id="expense" type="number" inputmode="numeric" value="250000">
+      </div>
+      <div>
+        <label>（空欄）</label>
+        <input type="text" value=" " disabled style="opacity:.4">
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn" onclick="calc()">計算する</button>
+      <button class="btn2" onclick="toggleTax()">税引前 / 後 切替</button>
+    </div>
+
+    <div class="kpi" id="kpi" style="display:none;">
+      <div class="box">
+        <div class="h">経済的自立まで</div>
+        <div class="v" id="yearsOut">—</div>
+        <div class="tag" id="yearsTag">—</div>
+      </div>
+      <div class="box">
+        <div class="h">到達日（目安）</div>
+        <div class="v" id="dateOut">—</div>
+        <div class="tag" id="dateTag">—</div>
+      </div>
+      <div class="box">
+        <div class="h">目標資産を4%で回すと</div>
+        <div class="v" id="monthly4Out">—</div>
+        <div class="tag" id="monthly4Tag">—</div>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="card" style="margin-top:12px;">
+      <div style="font-weight:900;margin-bottom:6px;">生活費から逆算（4%ルール目安）</div>
+      <div class="small">月の生活費 → 年支出×25（ざっくり目安）</div>
+
+      <div class="kpi" style="margin-top:10px;">
+        <div class="box">
+          <div class="h">目安の目標資産（年支出×25）</div>
+          <div class="v" id="fireTargetOut">—</div>
+          <div class="tag">※目安。安心の金額は人によって変わります。</div>
+        </div>
+        <div class="box">
+          <div class="h">生活費−4%配当（月）の差</div>
+          <div class="v" id="gapOut">—</div>
+          <div class="tag" id="gapTag">—</div>
+        </div>
+        <div class="box">
+          <div class="h">ワンタップで目標資産にセット</div>
+          <button class="btn2" style="width:100%;" onclick="setTargetToFire()">この金額を目標にする</button>
+          <div class="tag">目標資産の入力が自動で変わります</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div style="font-weight:900;margin-bottom:6px;">副業で「何年取り戻せる？」</div>
+      <div class="small">副業収入をそのまま投資に回す想定（ざっくり）</div>
+
+      <div class="grid" style="margin-top:10px;">
+        <div>
+          <label>副業で上乗せする金額（円/月）</label>
+          <input id="sideInput" type="number" inputmode="numeric" value="30000" oninput="syncSideFromInput()">
+        </div>
+        <div>
+          <label>スライダー（0〜100,000円）</label>
+          <input id="sideRange" class="range" type="range" min="0" max="100000" step="1000" value="30000"
+                 oninput="syncSideFromRange()">
+          <div class="tag">※1,000円単位</div>
+        </div>
+      </div>
+
+      <div class="kpi" style="margin-top:10px;">
+        <div class="box">
+          <div class="h">副業込みの到達まで</div>
+          <div class="v" id="sideNewOut">—</div>
+          <div class="tag" id="sideNewTag">—</div>
+        </div>
+        <div class="box">
+          <div class="h">人生で取り戻せる時間</div>
+          <div class="v" id="sideShortOut">—</div>
+          <div class="tag" id="sideShortTag">—</div>
+        </div>
+        <div class="box">
+          <div class="h">副業で増える入金（年間）</div>
+          <div class="v" id="sideYearOut">—</div>
+          <div class="tag">年＝月×12</div>
+        </div>
+      </div>
+
+      <div class="minirow">
+        <span class="pill">副業＝年数を削る道具</span>
+        <span class="pill">数字が出ると行動しやすい</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div style="font-weight:900;margin-bottom:6px;">結果カード（画像）</div>
+      <div class="small">画像化 → 保存 / 共有（Xにも貼れる）</div>
+
+      <div class="row">
+        <button class="btn" onclick="generateCard()">結果カードを作る</button>
+        <button class="btn2" onclick="shareCard()">共有 / 保存</button>
+      </div>
+
+      <div class="preview" id="preview">
+        <img id="cardImg" alt="結果カード">
+        <div class="small" style="margin-top:8px;">
+          ※iPhoneで共有できない時は、画像を長押し → 「写真に追加」でもOK
+        </div>
+      </div>
+
+      <canvas id="cardCanvas" width="1080" height="1350" style="display:none;"></canvas>
+    </div>
+
+    <div class="note">
+      ✅ 有料noteで「ラットレースを抜け出す」ための現実ルートを公開中。<br>
+      キーワードは <b>副業で資産を加速</b>。<br><br>
+      ▶ <a href="https://note.com/yusuke_record/n/n02f4a93ae57f" target="_blank" rel="noopener">
+      副業で資産を加速させる具体策（ゆーすけ）</a>
+    </div>
+
+    <div class="debug" id="debug"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="inner">
+    <button class="btn" onclick="copyResult()">結果をコピー</button>
+  </div>
+</div>
+
+<script>
+  // ===== PWA: service worker =====
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js");
+    });
+  }
+
+  // ===== デバッグ（iOSだと詳細が出ないことがある） =====
+  const debugEl = document.getElementById("debug");
+  window.onerror = function(msg, url, line, col, err){
+    debugEl.textContent = "JSエラー:\n" + msg + "\nline:" + line + " col:" + col;
+  };
+
+  // ===== 設定 =====
+  let taxMode = "before"; // before / after
+  const taxRate = 0.20315;
+  const APP_URL = "https://yusk0315-blip.github.io/ratter-su/";
+
+  // ===== util =====
+  function num(v){ return Number(String(v ?? "").replace(/,/g,"")) || 0; }
+  function yen(n){ return Math.round(n).toLocaleString("ja-JP"); }
+
+  function monthsToTarget(current, target, monthly, ratePct){
+    if(target <= 0) return {months:-1, asset:current};
+    if(current >= target) return {months:0, asset:current};
+
+    const r = (ratePct/100)/12;
+    let asset = current;
+    for(let i=1;i<=600;i++){
+      asset = asset * (1 + r) + monthly;
+      if(asset >= target) return {months:i, asset};
+    }
+    return {months:-1, asset};
+  }
+
+  function formatYM(months){
+    if(months === -1) return "50年+";
+    const y = Math.floor(months/12);
+    const m = months % 12;
+    if(y === 0 && m === 0) return "0ヶ月";
+    return (y ? y + "年" : "") + (m ? m + "ヶ月" : "");
+  }
+
+  function diffYM(baseMonths, newMonths){
+    if(baseMonths === -1 || newMonths === -1) return null;
+    const diff = baseMonths - newMonths;
+    if(diff <= 0) return "0ヶ月";
+    const y = Math.floor(diff/12);
+    const m = diff % 12;
+    return (y ? y + "年" : "") + (m ? m + "ヶ月" : "");
+  }
+
+  function reachDateLabel(months){
+    if(months === -1) return {big:"—", tag:"50年+（目安）"};
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() + months);
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    return {big:`${y}年${m}月`, tag:"※目安（相場次第で前後）"};
+  }
+
+  let last = {
+    baseMonths:-1, baseText:"", dateText:"",
+    monthly4Text:"", fireTargetText:"", gapText:"",
+    sideAdd:0, sideNewText:"", sideShortText:"",
+    taxLabel:"税引前"
+  };
+
+  function toggleTax(){
+    taxMode = (taxMode === "before") ? "after" : "before";
+    calc();
+  }
+
+  function setTargetToFire(){
+    const expense = num(document.getElementById("expense").value);
+    const fireTarget = expense > 0 ? (expense * 12 * 25) : 0;
+    if(fireTarget <= 0){ alert("先に月の生活費を入れてね"); return; }
+    document.getElementById("target").value = Math.round(fireTarget);
+    calc();
+  }
+
+  function syncSideFromInput(){
+    const v = Math.max(0, Math.min(100000, num(document.getElementById("sideInput").value)));
+    document.getElementById("sideInput").value = v;
+    document.getElementById("sideRange").value = v;
+    calc();
+  }
+  function syncSideFromRange(){
+    const v = num(document.getElementById("sideRange").value);
+    document.getElementById("sideInput").value = v;
+    calc();
+  }
+
+  function calc(){
+    try{
+      debugEl.textContent = "";
+
+      const current = num(document.getElementById("current").value);
+      const target  = num(document.getElementById("target").value);
+      const monthly = num(document.getElementById("monthly").value);
+      const ratePct = num(document.getElementById("rate").value);
+      const expense = num(document.getElementById("expense").value);
+      const sideAdd = num(document.getElementById("sideInput").value);
+
+      if(target <= 0){ alert("目標資産は1円以上で入れてね"); return; }
+
+      const base = monthsToTarget(current, target, monthly, ratePct);
+
+      const grossAnnual = target * 0.04;
+      const netAnnual   = grossAnnual * (1 - taxRate);
+      const monthlyIncome = (taxMode === "before") ? (grossAnnual/12) : (netAnnual/12);
+
+      document.getElementById("kpi").style.display = "grid";
+
+      const yearsOut = document.getElementById("yearsOut");
+      const yearsTag = document.getElementById("yearsTag");
+      const dateOut  = document.getElementById("dateOut");
+      const dateTag  = document.getElementById("dateTag");
+      const monthly4Out = document.getElementById("monthly4Out");
+      const monthly4Tag = document.getElementById("monthly4Tag");
+      const msgEl = document.getElementById("msg");
+
+      monthly4Out.textContent = "¥" + yen(monthlyIncome) + "/月";
+      monthly4Tag.textContent = (taxMode === "before")
+        ? "税引前（年 ¥" + yen(grossAnnual) + "）"
+        : "税引後（年 ¥" + yen(netAnnual) + "）";
+
+      const rd = reachDateLabel(base.months);
+      dateOut.textContent = rd.big;
+      dateTag.textContent = rd.tag;
+
+      if(base.months === -1){
+        yearsOut.textContent = "50年+";
+        yearsTag.textContent = "月額UP / 目標調整 / 前提見直し";
+        msgEl.innerHTML = "⚠️ 50年以内に目標に届きませんでした。<br>ただし、副業で入金力を上げると一気に現実化することがあります。";
+      }else{
+        yearsOut.textContent = formatYM(base.months);
+        let tag = "";
+        if(base.months <= 60) tag = "かなり現実的（5年以内）";
+        else if(base.months <= 120) tag = "現実的（10年以内）";
+        else if(base.months <= 240) tag = "長期戦（20年以内）";
+        else tag = "超長期（20年以上）";
+        yearsTag.textContent = tag;
+        msgEl.innerHTML = "✅ 目安は <b>" + formatYM(base.months) + "（" + rd.big + "）</b>。<br>ここからは <b>副業で資産を加速</b> させて年数を削る。";
+      }
+
+      // 生活費×25
+      const fireTarget = expense > 0 ? (expense * 12 * 25) : 0;
+      const fireTargetOut = document.getElementById("fireTargetOut");
+      const gapOut = document.getElementById("gapOut");
+      const gapTag = document.getElementById("gapTag");
+
+      if(fireTarget > 0){
+        fireTargetOut.textContent = "¥" + yen(fireTarget);
+        const gap = expense - monthlyIncome;
+        const absGap = Math.abs(gap);
+        if(gap > 0){
+          gapOut.textContent = "あと ¥" + yen(absGap) + "/月";
+          gapTag.textContent = "＝この差を埋めると“自由”が現実化";
+        }else{
+          gapOut.textContent = "＋¥" + yen(absGap) + "/月";
+          gapTag.textContent = "4%配当だけで生活費を超えています";
+        }
+      }else{
+        fireTargetOut.textContent = "—";
+        gapOut.textContent = "—";
+        gapTag.textContent = "月の生活費を入れると計算します";
+      }
+
+      // 副業
+      const sideNewOut = document.getElementById("sideNewOut");
+      const sideNewTag = document.getElementById("sideNewTag");
+      const sideShortOut = document.getElementById("sideShortOut");
+      const sideShortTag = document.getElementById("sideShortTag");
+      const sideYearOut = document.getElementById("sideYearOut");
+
+      sideYearOut.textContent = "¥" + yen(sideAdd * 12);
+
+      const sim = monthsToTarget(current, target, monthly + sideAdd, ratePct);
+
+      if(sim.months === -1){
+        sideNewOut.textContent = "50年+";
+        sideNewTag.textContent = "まだ遠い（条件見直し）";
+        sideShortOut.textContent = "—";
+        sideShortTag.textContent = "副業額を上げるか目標調整";
+      }else{
+        sideNewOut.textContent = formatYM(sim.months);
+        const rd2 = reachDateLabel(sim.months);
+        sideNewTag.textContent = "到達目安： " + rd2.big;
+
+        if(base.months === -1){
+          sideShortOut.textContent = "現実化";
+          sideShortTag.textContent = "副業で「届く」状態になった";
+        }else{
+          const shorten = diffYM(base.months, sim.months);
+          sideShortOut.textContent = shorten ? ("短縮 " + shorten) : "0ヶ月";
+          sideShortTag.textContent = "＝人生の時間を取り戻す";
+        }
+      }
+
+      // 保存
+      last.baseMonths = base.months;
+      last.baseText = (base.months===-1 ? "50年+" : formatYM(base.months));
+      last.dateText = rd.big;
+      last.monthly4Text = monthly4Out.textContent;
+      last.fireTargetText = (fireTarget>0 ? ("¥" + yen(fireTarget)) : "—");
+      last.gapText = gapOut.textContent;
+      last.sideAdd = sideAdd;
+      last.sideNewText = sideNewOut.textContent;
+      last.sideShortText = sideShortOut.textContent;
+      last.taxLabel = (taxMode==="before" ? "税引前" : "税引後");
+
+      window.__copyText = [
+        "【ラットレース脱出カウンター】",
+        "到達まで：" + last.baseText + "（" + last.dateText + "）",
+        "4%配当：" + last.monthly4Text + "（" + last.taxLabel + "）",
+        "4%ルール目安：" + last.fireTargetText,
+        "生活費−4%配当（月）：" + last.gapText,
+        "",
+        "【副業シミュレーション】",
+        "副業 +" + yen(sideAdd) + "/月 → 到達：" + last.sideNewText + " / " + last.sideShortText,
+        "",
+        "ツール：" + APP_URL,
+        "note：https://note.com/yusuke_record/n/n02f4a93ae57f"
+      ].join("\n");
+
+      // Hero更新
+      const heroYearsEl = document.getElementById("heroYears");
+      const heroDateEl  = document.getElementById("heroDate");
+
+      if(heroYearsEl && heroDateEl){
+        if(base.months === -1){
+          heroYearsEl.textContent = "50+";
+          heroDateEl.textContent = "（目安：—）";
+        }else{
+          const y = Math.max(0, Math.floor(base.months / 12));
+          heroYearsEl.textContent = String(y);
+          heroDateEl.textContent = "（目安：" + rd.big + "）";
+        }
+      }
+
+    }catch(e){
+      debugEl.textContent = "計算中にエラー:\n" + (e && e.message ? e.message : String(e));
+    }
+  }
+
+  async function copyResult(){
+    const text = window.__copyText || "先に計算してね";
+    try{
+      await navigator.clipboard.writeText(text);
+      alert("コピーしました！");
+    }catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      alert("コピーしました！");
+    }
+  }
+
+  /* =========================
+     ✅ QR生成（読める本物）
+     ========================= */
+  const QRMode = { MODE_8BIT_BYTE: 4 };
+  function QR8bitByte(data){
+    this.mode = QRMode.MODE_8BIT_BYTE;
+    this.data = data;
+    this.parsed = [];
+    for(let i=0;i<this.data.length;i++) this.parsed.push(this.data.charCodeAt(i));
+    this.getLength = () => this.parsed.length;
+    this.write = (buffer) => { for(let i=0;i<this.parsed.length;i++) buffer.put(this.parsed[i], 8); };
+  }
+  function QRBitBuffer(){ this.buffer=[]; this.length=0; }
+  QRBitBuffer.prototype = {
+    get: function(index){
+      const bufIndex = Math.floor(index/8);
+      return ((this.buffer[bufIndex] >>> (7 - index%8)) & 1) == 1;
+    },
+    put: function(num, length){
+      for(let i=0;i<length;i++) this.putBit(((num >>> (length - i - 1)) & 1) == 1);
+    },
+    putBit: function(bit){
+      const bufIndex = Math.floor(this.length/8);
+      if(this.buffer.length <= bufIndex) this.buffer.push(0);
+      if(bit) this.buffer[bufIndex] |= (0x80 >>> (this.length % 8));
+      this.length++;
+    }
+  };
+
+  const QRMath = (function(){
+    const EXP_TABLE = new Array(256);
+    const LOG_TABLE = new Array(256);
+    for(let i=0;i<8;i++) EXP_TABLE[i] = 1 << i;
+    for(let i=8;i<256;i++) EXP_TABLE[i] = EXP_TABLE[i-4] ^ EXP_TABLE[i-5] ^ EXP_TABLE[i-6] ^ EXP_TABLE[i-8];
+    for(let i=0;i<255;i++) LOG_TABLE[EXP_TABLE[i]] = i;
+    return {
+      glog: (n)=>{ if(n<1) throw new Error("glog"); return LOG_TABLE[n]; },
+      gexp: (n)=>{ while(n<0) n+=255; while(n>=256) n-=255; return EXP_TABLE[n]; }
+    };
+  })();
+
+  function QRPolynomial(num, shift){
+    let offset=0;
+    while(offset<num.length && num[offset]==0) offset++;
+    this.num = new Array(num.length - offset + shift);
+    for(let i=0;i<num.length-offset;i++) this.num[i] = num[i+offset];
+  }
+  QRPolynomial.prototype = {
+    get: function(i){ return this.num[i]; },
+    getLength: function(){ return this.num.length; },
+    multiply: function(e){
+      const num = new Array(this.getLength()+e.getLength()-1).fill(0);
+      for(let i=0;i<this.getLength();i++){
+        for(let j=0;j<e.getLength();j++){
+          num[i+j] ^= QRMath.gexp(QRMath.glog(this.get(i)) + QRMath.glog(e.get(j)));
+        }
+      }
+      return new QRPolynomial(num,0);
+    },
+    mod: function(e){
+      if(this.getLength() - e.getLength() < 0) return this;
+      const ratio = QRMath.glog(this.get(0)) - QRMath.glog(e.get(0));
+      const num = this.num.slice();
+      for(let i=0;i<e.getLength();i++){
+        num[i] ^= QRMath.gexp(QRMath.glog(e.get(i)) + ratio);
+      }
+      return new QRPolynomial(num,0).mod(e);
+    }
+  };
+
+  const QRRSBlock = (function(){
+    // version 3, error correction M (15%)
+    const RS_BLOCK_TABLE = { "3-M": [[1, 44, 34]] };
+    function getRSBlocks(){
+      const list = RS_BLOCK_TABLE["3-M"];
+      return list.map(v=>({totalCount:v[1], dataCount:v[2]}));
+    }
+    return { getRSBlocks };
+  })();
+
+  const QRUtil = (function(){
+    const PATTERN_POSITION_TABLE = [
+      [],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42]
+    ];
+    const G15 = (1<<10)|(1<<8)|(1<<5)|(1<<4)|(1<<2)|(1<<1)|(1);
+    const G15_MASK = (1<<14)|(1<<12)|(1<<10)|(1<<4)|(1<<1);
+    function getBCHDigit(data){
+      let digit=0;
+      while(data!=0){ digit++; data>>>=1; }
+      return digit;
+    }
+    return {
+      getBCHTypeInfo: function(data){
+        let d = data << 10;
+        while(getBCHDigit(d) - getBCHDigit(G15) >= 0){
+          d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15)));
+        }
+        return ((data<<10)|d) ^ G15_MASK;
+      },
+      getMask: function(maskPattern, i, j){
+        switch(maskPattern){
+          case 0: return (i+j)%2==0;
+          default: return false;
+        }
+      },
+      getErrorCorrectPolynomial: function(errorCorrectLength){
+        let a = new QRPolynomial([1],0);
+        for(let i=0;i<errorCorrectLength;i++){
+          a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)],0));
+        }
+        return a;
+      }
+    };
+  })();
+
+  function QRCode(typeNumber){
+    this.typeNumber = typeNumber;
+    this.modules = null;
+    this.moduleCount = 0;
+    this.dataCache = null;
+    this.dataList = [];
+  }
+  QRCode.prototype = {
+    addData: function(data){ this.dataList.push(new QR8bitByte(data)); this.dataCache=null; },
+    isDark: function(r,c){ return this.modules[r][c]; },
+    getModuleCount: function(){ return this.moduleCount; },
+    make: function(){ this.makeImpl(false, 0); },
+    makeImpl: function(test, maskPattern){
+      this.moduleCount = this.typeNumber * 4 + 17;
+      this.modules = new Array(this.moduleCount);
+      for(let r=0;r<this.moduleCount;r++){
+        this.modules[r] = new Array(this.moduleCount).fill(null);
+      }
+      this.setupPositionProbePattern(0,0);
+      this.setupPositionProbePattern(this.moduleCount-7,0);
+      this.setupPositionProbePattern(0,this.moduleCount-7);
+      this.setupTimingPattern();
+      this.setupTypeInfo(test, maskPattern);
+      if(this.dataCache==null) this.dataCache = this.createData(this.dataList);
+      this.mapData(this.dataCache, maskPattern);
+    },
+    setupPositionProbePattern: function(row,col){
+      for(let r=-1;r<=7;r++){
+        if(row+r<=-1||this.moduleCount<=row+r) continue;
+        for(let c=-1;c<=7;c++){
+          if(col+c<=-1||this.moduleCount<=col+c) continue;
+          if((0<=r&&r<=6&&(c==0||c==6))||(0<=c&&c<=6&&(r==0||r==6))||(2<=r&&r<=4&&2<=c&&c<=4)){
+            this.modules[row+r][col+c]=true;
+          } else {
+            this.modules[row+r][col+c]=false;
+          }
+        }
+      }
+    },
+    setupTimingPattern: function(){
+      for(let i=8;i<this.moduleCount-8;i++){
+        if(this.modules[i][6]!=null) continue;
+        this.modules[i][6]=(i%2==0);
+        if(this.modules[6][i]!=null) continue;
+        this.modules[6][i]=(i%2==0);
+      }
+    },
+    setupTypeInfo: function(test, maskPattern){
+      const data = (1<<3) | maskPattern;
+      const bits = QRUtil.getBCHTypeInfo(data);
+      for(let i=0;i<15;i++){
+        const mod = (!test && ((bits >> i) & 1) == 1);
+        if(i<6) this.modules[i][8]=mod;
+        else if(i<8) this.modules[i+1][8]=mod;
+        else this.modules[this.moduleCount-15+i][8]=mod;
+
+        if(i<8) this.modules[8][this.moduleCount-i-1]=mod;
+        else if(i<9) this.modules[8][15-i-1+1]=mod;
+        else this.modules[8][15-i-1]=mod;
+      }
+      this.modules[this.moduleCount-8][8]=(!test);
+    },
+    createData: function(dataList){
+      const rsBlocks = QRRSBlock.getRSBlocks();
+      const buffer = new QRBitBuffer();
+      for(let i=0;i<dataList.length;i++){
+        const data = dataList[i];
+        buffer.put(4,4);
+        buffer.put(data.getLength(), 8);
+        data.write(buffer);
+      }
+      const totalDataCount = rsBlocks.reduce((a,b)=>a+b.dataCount,0);
+      if(buffer.length + 4 <= totalDataCount*8) buffer.put(0,4);
+      while(buffer.length % 8 != 0) buffer.putBit(false);
+
+      const PAD0 = 0xEC, PAD1 = 0x11;
+      while(buffer.length/8 < totalDataCount){
+        buffer.put(PAD0,8);
+        if(buffer.length/8 >= totalDataCount) break;
+        buffer.put(PAD1,8);
+      }
+
+      const dataBytes = [];
+      for(let i=0;i<buffer.buffer.length;i++) dataBytes.push(buffer.buffer[i]);
+
+      let offset=0;
+      const dcdata=[], ecdata=[];
+      for(let r=0;r<rsBlocks.length;r++){
+        const dcCount = rsBlocks[r].dataCount;
+        const ecCount = rsBlocks[r].totalCount - dcCount;
+        const dc = dataBytes.slice(offset, offset+dcCount);
+        offset += dcCount;
+        const rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        const rawPoly = new QRPolynomial(dc, ecCount);
+        const modPoly = rawPoly.mod(rsPoly);
+        const ec = new Array(ecCount).fill(0);
+        for(let i=0;i<ec.length;i++){
+          const modIndex = i + modPoly.getLength() - ec.length;
+          ec[i] = (modIndex >= 0) ? modPoly.get(modIndex) : 0;
+        }
+        dcdata.push(dc); ecdata.push(ec);
+      }
+
+      const out = [];
+      let maxDc = Math.max(...dcdata.map(a=>a.length));
+      let maxEc = Math.max(...ecdata.map(a=>a.length));
+      for(let i=0;i<maxDc;i++) for(let r=0;r<dcdata.length;r++) if(i<dcdata[r].length) out.push(dcdata[r][i]);
+      for(let i=0;i<maxEc;i++) for(let r=0;r<ecdata.length;r++) if(i<ecdata[r].length) out.push(ecdata[r][i]);
+      return out;
+    },
+    mapData: function(data, maskPattern){
+      let inc=-1, row=this.moduleCount-1, bitIndex=7, byteIndex=0;
+      for(let col=this.moduleCount-1; col>0; col-=2){
+        if(col==6) col--;
+        while(true){
+          for(let c=0;c<2;c++){
+            if(this.modules[row][col-c]==null){
+              let dark=false;
+              if(byteIndex < data.length) dark = (((data[byteIndex] >>> bitIndex) & 1) == 1);
+              if(QRUtil.getMask(maskPattern,row,col-c)) dark=!dark;
+              this.modules[row][col-c]=dark;
+              bitIndex--;
+              if(bitIndex==-1){ byteIndex++; bitIndex=7; }
+            }
+          }
+          row += inc;
+          if(row < 0 || this.moduleCount <= row){
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    }
+  };
+
+  function drawQR(ctx, text, x, y, size){
+    const qr = new QRCode(3);
+    qr.addData(text);
+    qr.make();
+    const n = qr.getModuleCount();
+    const cell = Math.floor(size / n);
+    const realSize = cell * n;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x, y, realSize, realSize);
+
+    ctx.fillStyle = "#000000";
+    for(let r=0;r<n;r++){
+      for(let c=0;c<n;c++){
+        if(qr.isDark(r,c)) ctx.fillRect(x + c*cell, y + r*cell, cell, cell);
+      }
+    }
+  }
+
+  /* =========================
+     ✅ 結果カード
+     ========================= */
+  let lastCardBlob = null;
+
+  function drawRoundedRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y, x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x, y+h, r);
+    ctx.arcTo(x, y+h, x, y, r);
+    ctx.arcTo(x, y, x+w, y, r);
+    ctx.closePath();
+  }
+
+  function generateCard(){
+    try{
+      calc();
+
+      const canvas = document.getElementById("cardCanvas");
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width, H = canvas.height;
+
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = "#0b0f14";
+      ctx.fillRect(0,0,W,H);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 64px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillText("ラットレース脱出カウンター", 72, 120);
+
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.font = "600 34px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillText("数字で“いつまで働くか”を見える化", 72, 175);
+
+      // ↑↑
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.moveTo(820, 78); ctx.lineTo(780, 138); ctx.lineTo(802, 138);
+      ctx.lineTo(802, 202); ctx.lineTo(838, 202); ctx.lineTo(838, 138);
+      ctx.lineTo(860, 138); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(930, 78); ctx.lineTo(890, 138); ctx.lineTo(912, 138);
+      ctx.lineTo(912, 202); ctx.lineTo(948, 202); ctx.lineTo(948, 138);
+      ctx.lineTo(970, 138); ctx.closePath(); ctx.fill();
+
+      const px = 60, py = 240, pw = W-120, ph = 820;
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      drawRoundedRect(ctx, px, py, pw, ph, 28);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 90px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillText("到達まで", 100, 360);
+
+      ctx.font = "900 120px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillText(last.baseText, 100, 490);
+
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = "800 44px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillText("到達目安：" + last.dateText, 100, 565);
+
+      ctx.font = "700 36px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.70)";
+      ctx.fillText("4%配当（月）", 100, 650);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(`${last.monthly4Text}（${last.taxLabel}）`, 520, 650);
+
+      ctx.fillStyle = "rgba(255,255,255,0.70)";
+      ctx.fillText("4%ルール目安", 100, 718);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(last.fireTargetText, 520, 718);
+
+      ctx.fillStyle = "rgba(255,255,255,0.70)";
+      ctx.fillText("生活費−4%配当", 100, 786);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(last.gapText, 520, 786);
+
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = "900 44px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillText("副業シミュレーション", 100, 890);
+
+      ctx.font = "700 36px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(`副業 +¥${yen(last.sideAdd)}/月 → 到達：${last.sideNewText}`, 100, 960);
+      ctx.fillText(`取り戻せる時間：${last.sideShortText}`, 100, 1020);
+
+      ctx.fillStyle = "rgba(255,255,255,0.65)";
+      ctx.font = "700 28px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillText("yusk0315-blip.github.io/ratter-su/", 72, 1285);
+
+      // QR
+      drawQR(ctx, APP_URL, 820, 1060, 220);
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = "800 26px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
+      ctx.fillText("無料で試す", 840, 1045);
+
+      canvas.toBlob((blob)=>{
+        lastCardBlob = blob;
+        const url = URL.createObjectURL(blob);
+        document.getElementById("cardImg").src = url;
+        document.getElementById("preview").style.display = "block";
+        document.getElementById("preview").scrollIntoView({behavior:"smooth", block:"start"});
+      }, "image/png");
+
+    }catch(e){
+      debugEl.textContent = "カード生成エラー:\n" + (e && e.message ? e.message : String(e));
+    }
+  }
+
+  async function shareCard(){
+    try{
+      if(!lastCardBlob){
+        generateCard();
+        alert("まずカードを作成しました。もう一度「共有/保存」を押してね！");
+        return;
+      }
+      const file = new File([lastCardBlob], "result-card.png", {type:"image/png"});
+
+      if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({ title: "ラットレース脱出カウンター", text: "結果カード", files: [file] });
+        return;
+      }
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(lastCardBlob);
+      a.download = "result-card.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      alert("保存（ダウンロード）しました！");
+    }catch(e){
+      debugEl.textContent = "共有/保存エラー:\n" + (e && e.message ? e.message : String(e));
+    }
+  }
+
+  // 入力変更で再計算（トップの3つ＋詳細の3つ）
+  ["current","target","monthly","rate","age","expense"].forEach(id=>{
+    const inp = document.getElementById(id);
+    inp.addEventListener("input", ()=>calc());
+    inp.addEventListener("change", ()=>calc());
+  });
+
+  // 初回
+  calc();
+</script>
+
+</body>
+</html>
